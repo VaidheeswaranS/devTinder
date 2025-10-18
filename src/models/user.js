@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema(
     },
     lastName: {
       type: String,
+      required: true,
       trim: true,
       minLength: 1,
       maxLength: 50,
@@ -26,11 +27,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      minLength: 8,
+      maxLength: 20,
     },
     age: {
       type: Number,
       required: true,
       min: 18,
+      default: 18,
     },
     gender: {
       type: String,
@@ -51,7 +55,6 @@ const userSchema = new mongoose.Schema(
     },
     skills: {
       type: [String],
-      required: true,
     },
   },
   {

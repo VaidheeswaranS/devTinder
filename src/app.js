@@ -16,7 +16,7 @@ app.post("/signup", async (req, res) => {
     await user.save();
     res.send("User Added successfully");
   } catch (err) {
-    res.status(500).send("Error saving the user" + err.message);
+    res.status(500).send("Error saving the user: " + err.message);
   }
 });
 
@@ -31,7 +31,7 @@ app.get("/user", async (req, res) => {
       res.send(user);
     }
   } catch (err) {
-    res.status(400).send("Something went wrong" + err.message);
+    res.status(400).send("Something went wrong: " + err.message);
   }
 });
 
@@ -45,7 +45,7 @@ app.get("/feed", async (req, res) => {
       res.send(users);
     }
   } catch (err) {
-    res.status(400).send("Something went wrong" + err.message);
+    res.status(400).send("Something went wrong: " + err.message);
   }
 });
 
@@ -60,15 +60,29 @@ app.delete("/user", async (req, res) => {
       res.send("User is deleted successfully");
     }
   } catch (err) {
-    res.send(400).send("Something went wrong" + err.message);
+    res.send(400).send("Something went wrong: " + err.message);
   }
 });
 
 // user API (for PATCH) - this is to update the user in the database based on userId
-app.patch("/user", async (req, res) => {
+app.patch("/user/:userId", async (req, res) => {
   try {
-    const userId = req.body.userId;
+    const userId = req.params?.userId;
     const data = req.body;
+
+    const ALLOWED_FIELDS = ["skills", "photoUrl", "about", "password"];
+    const isUpdateAllowed = Object.keys(data).every((k) =>
+      ALLOWED_FIELDS.includes(k)
+    );
+
+    if (!isUpdateAllowed) {
+      throw new Error("Update not allowed");
+    }
+
+    if (data?.skills.length > 15) {
+      throw new Error("Skills cannot be more than 10");
+    }
+
     const user = await User.findByIdAndUpdate(userId, data);
     if (!user) {
       res.status(404).send("User not found");
@@ -76,7 +90,7 @@ app.patch("/user", async (req, res) => {
       res.send("User is updated successfully");
     }
   } catch (err) {
-    res.send(400).send("Something went wrong" + err.message);
+    res.status(400).send("Something went wrong: " + err.message);
   }
 });
 
