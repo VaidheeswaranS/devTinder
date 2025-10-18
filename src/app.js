@@ -2,21 +2,82 @@
 const { adminAuth, userAuth } = require("./middlewares/auth");
 const { connectDB } = require("./config/database");
 const { User } = require("./models/user");
+const { validateSignUpData } = require("./utils/validation");
+const bcrypt = require("bcrypt");
+const validator = require("validator");
 
 const app = express();
 
 // this is the middleware provided by Express which will read the request body and convert it into JS object
 app.use(express.json());
 
-// signup API
+// signup API - this is to register the User in the application
 app.post("/signup", async (req, res) => {
-  const user = new User(req.body);
-
   try {
+    const {
+      firstName,
+      lastName,
+      emailId,
+      password,
+      age,
+      gender,
+      photoUrl,
+      about,
+      skills,
+    } = req.body;
+
+    // validation of data
+    validateSignUpData(req);
+
+    // encrypt the password
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // save the user in DB
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: passwordHash,
+      age,
+      gender,
+      photoUrl,
+      about,
+      skills,
+    });
+
     await user.save();
     res.send("User Added successfully");
   } catch (err) {
-    res.status(500).send("Error saving the user: " + err.message);
+    res.status(500).send("ERROR: " + err.message);
+  }
+});
+
+// login API - this is to login the user into the application
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+
+    // checking if emailId is valid
+    if (!validator.isEmail(emailId)) {
+      throw new Error("Not a valid Email ID");
+    }
+
+    // getting the User info from DB with emailId as filter
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("Invalid Credentials");
+    }
+
+    // checking the password in the DB
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (isPasswordValid) {
+      res.send("Login Successful");
+    } else {
+      throw new Error("Invalid Credentials");
+    }
+  } catch (err) {
+    res.status(500).send("ERROR: " + err.message);
   }
 });
 
@@ -70,7 +131,7 @@ app.patch("/user/:userId", async (req, res) => {
     const userId = req.params?.userId;
     const data = req.body;
 
-    const ALLOWED_FIELDS = ["skills", "photoUrl", "about", "password"];
+    const ALLOWED_FIELDS = ["skills", "photoUrl", "about"];
     const isUpdateAllowed = Object.keys(data).every((k) =>
       ALLOWED_FIELDS.includes(k)
     );
