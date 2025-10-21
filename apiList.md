@@ -12,7 +12,7 @@
 - PATCH /profile/forgotPassword
 
 ## connectionRequestRouter
-- POST /request/send/:status/:userId - (intereted or ignored)
+- POST /request/send/:status/:userId - (interested or ignored)
 - POST /request/review/accepted/:requestId
 - POST /request/review/rejected/:requestId
 
