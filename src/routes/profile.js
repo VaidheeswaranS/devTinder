@@ -40,10 +40,11 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
   }
 });
 
-// profile/password API - to change the password
-profileRouter.patch("/profile/password", userAuth, async (req, res) => {
+// profile/changePassword API - to change the password if the user wants to change
+profileRouter.patch("/profile/changePassword", userAuth, async (req, res) => {
   try {
     const { emailId, password, newPassword } = req.body;
+    const loggedInUser = req.user;
 
     // checking if emailId is valid
     if (!validator.isEmail(emailId)) {
@@ -69,7 +70,6 @@ profileRouter.patch("/profile/password", userAuth, async (req, res) => {
       throw new Error("Current password is incorrect");
     } else {
       const passwordHash = await bcrypt.hash(newPassword, 10);
-      const loggedInUser = req.user;
       loggedInUser.password = passwordHash;
       await loggedInUser.save();
       res.cookie("token", null, { expires: new Date(Date.now()) });
@@ -79,6 +79,38 @@ profileRouter.patch("/profile/password", userAuth, async (req, res) => {
         } your password is updated successfully. Please Login again.`
       );
     }
+  } catch (err) {
+    res.status(400).send("ERROR: " + err.message);
+  }
+});
+
+// profile/forgotPassword - to change the password in case of User forgot the current password
+profileRouter.patch("/profile/forgotPassword", userAuth, async (req, res) => {
+  try {
+    const { emailId, newPassword } = req.body;
+    const loggedInUser = req.user;
+
+    // checking if emailId is valid
+    if (!validator.isEmail(emailId)) {
+      throw new Error("Not a valid Email ID");
+    }
+
+    // getting the User info from DB with emailId as filter
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("Invalid Credentials");
+    }
+
+    // only changing the password if above checks are passed
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    loggedInUser.password = passwordHash;
+    await loggedInUser.save();
+    res.cookie("token", null, { expires: new Date(Date.now()) });
+    res.send(
+      `${
+        loggedInUser.firstName + " " + loggedInUser.lastName
+      } your password is updated successfully. Please Login again.`
+    );
   } catch (err) {
     res.status(400).send("ERROR: " + err.message);
   }
