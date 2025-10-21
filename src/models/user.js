@@ -59,6 +59,11 @@ const userSchema = new mongoose.Schema(
     photoUrl: {
       type: String,
       default: "https://geographyandyou.com/images/user-profile.png",
+      validate(value) {
+        if (!validator.isURL(value)) {
+          throw new Error("Enter a valid photo URL");
+        }
+      },
     },
     about: {
       type: String,
@@ -74,10 +79,10 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-userSchema.methods.getJWT = async function () {
+userSchema.methods.getJWT = function () {
   const user = this;
 
-  const token = await jwt.sign({ _id: user._id }, "DEV@Tinder$777", {
+  const token = jwt.sign({ _id: user._id }, "DEV@Tinder$777", {
     expiresIn: "1d",
   });
 

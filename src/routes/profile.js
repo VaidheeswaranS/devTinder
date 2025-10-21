@@ -1,13 +1,84 @@
 ﻿const express = require("express");
 const { userAuth } = require("../middlewares/auth");
+const { User } = require("../models/user");
+const { validateEditProfileData } = require("../utils/validation");
+const bcrypt = require("bcrypt");
+const validator = require("validator");
 
 const profileRouter = express.Router();
 
-// profile API - get user details from the DB
-profileRouter.get("/profile", userAuth, async (req, res) => {
+// profile/view API - get user details from the DB
+profileRouter.get("/profile/view", userAuth, async (req, res) => {
   try {
     const user = req.user;
     res.send(user);
+  } catch (err) {
+    res.status(400).send("ERROR: " + err.message);
+  }
+});
+
+// profile/edit API - to edit the details from the DB(only "photoUrl", "about" and "skills" can be edited)
+profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
+  try {
+    if (!validateEditProfileData(req)) {
+      throw new Error("Invalid Edit request");
+    } else {
+      const loggedInUser = req.user;
+      Object.keys(req.body).forEach(
+        (key) => (loggedInUser[key] = req.body[key])
+      );
+      await loggedInUser.save();
+      res.json({
+        message: `${
+          loggedInUser.firstName + " " + loggedInUser.lastName
+        } your profile is updated successfully`,
+        data: loggedInUser,
+      });
+    }
+  } catch (err) {
+    res.status(400).send("ERROR: " + err.message);
+  }
+});
+
+// profile/password API - to change the password
+profileRouter.patch("/profile/password", userAuth, async (req, res) => {
+  try {
+    const { emailId, password, newPassword } = req.body;
+
+    // checking if emailId is valid
+    if (!validator.isEmail(emailId)) {
+      throw new Error("Not a valid Email ID");
+    }
+
+    // getting the User info from DB with emailId as filter
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("Invalid Credentials");
+    }
+
+    // checking if current password is valid
+    const isPasswordValid = await user.validatePassword(password);
+
+    // cheking if currentPassword and newPassword are same
+    if (password === newPassword) {
+      throw new Error("New password cannot be same as old Password");
+    }
+
+    // only changing the password if above checks are passed
+    if (!isPasswordValid) {
+      throw new Error("Current password is incorrect");
+    } else {
+      const passwordHash = await bcrypt.hash(newPassword, 10);
+      const loggedInUser = req.user;
+      loggedInUser.password = passwordHash;
+      await loggedInUser.save();
+      res.cookie("token", null, { expires: new Date(Date.now()) });
+      res.send(
+        `${
+          loggedInUser.firstName + " " + loggedInUser.lastName
+        } your password is updated successfully. Please Login again.`
+      );
+    }
   } catch (err) {
     res.status(400).send("ERROR: " + err.message);
   }
