@@ -20,6 +20,7 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
 // profile/edit API - to edit the details from the DB(only "photoUrl", "about" and "skills" can be edited)
 profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
   try {
+    // check 1 - validation of data from request
     if (!validateEditProfileData(req)) {
       throw new Error("Invalid Edit request");
     } else {
@@ -46,21 +47,21 @@ profileRouter.patch("/profile/changePassword", userAuth, async (req, res) => {
     const { emailId, password, newPassword } = req.body;
     const loggedInUser = req.user;
 
-    // checking if emailId is valid
+    // check 1 - checking if emailId is valid
     if (!validator.isEmail(emailId)) {
       throw new Error("Not a valid Email ID");
     }
 
-    // getting the User info from DB with emailId as filter
+    // check 2 - getting the User info from DB with emailId as filter
     const user = await User.findOne({ emailId: emailId });
     if (!user) {
       throw new Error("Invalid Credentials");
     }
 
-    // checking if current password is valid
+    // check 3 - checking if current password is valid
     const isPasswordValid = await user.validatePassword(password);
 
-    // cheking if currentPassword and newPassword are same
+    // check 4 - cheking if currentPassword and newPassword are same
     if (password === newPassword) {
       throw new Error("New password cannot be same as old Password");
     }
@@ -90,12 +91,12 @@ profileRouter.patch("/profile/forgotPassword", userAuth, async (req, res) => {
     const { emailId, newPassword } = req.body;
     const loggedInUser = req.user;
 
-    // checking if emailId is valid
+    // check 1 - checking if emailId is valid
     if (!validator.isEmail(emailId)) {
       throw new Error("Not a valid Email ID");
     }
 
-    // getting the User info from DB with emailId as filter
+    // check 2 - getting the User info from DB with emailId as filter
     const user = await User.findOne({ emailId: emailId });
     if (!user) {
       throw new Error("Invalid Credentials");

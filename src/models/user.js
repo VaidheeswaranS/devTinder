@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema(
     emailId: {
       type: String,
       required: true,
-      unique: true,
+      unique: true, // making a field "unique" mongo DB will automatically create index on that field
       lowercase: true,
       trim: true,
       validate(value) {

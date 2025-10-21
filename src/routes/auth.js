@@ -21,7 +21,7 @@ authRouter.post("/signup", async (req, res) => {
       skills,
     } = req.body;
 
-    // validation of data
+    // check 1 - validation of data from request
     validateSignUpData(req);
 
     // encrypt the password
