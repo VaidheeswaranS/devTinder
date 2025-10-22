@@ -13,9 +13,8 @@ requestRouter.post(
     try {
       const allowedStatus = ["ignored", "interested"];
 
-      const fromUserId = req.user._id;
-      const toUserId = req.params.toUserId;
-      const status = req.params.status;
+      const fromUserId = req.user._id; // this is coming from UserAuth
+      const { status, toUserId } = req.params;
 
       // check 1 - only "interested" or "ignored" is handled in this API
       if (!allowedStatus.includes(status)) {
@@ -94,6 +93,62 @@ requestRouter.post(
           data,
         });
       }
+    } catch (err) {
+      res.status(400).send("ERROR: " + err.message);
+    }
+  }
+);
+
+// request/review/:status/:requestId API - this is to accept or reject the connection request
+requestRouter.post(
+  "/request/review/:status/:requestId",
+  userAuth,
+  async (req, res) => {
+    try {
+      const allowedStatus = ["accepted", "rejected"];
+      const { requestId, status } = req.params;
+      const loggedInUser = req.user; // this is coming from UserAuth
+
+      // check 1 - only "accepted" or "rejected" is handled in this API
+      if (!allowedStatus.includes(status)) {
+        return res
+          .status(400)
+          .json({ message: "Invalid status type: " + status });
+      }
+
+      // check 2 - checking if the requestId is present in DB
+      // check 3 - the user who accepts or rejects should be logged in
+      // check 4 - the status in request should be "interested"
+      const connectionRequest = await ConnectionRequest.findOne({
+        _id: requestId,
+        toUserId: loggedInUser._id,
+        status: "interested",
+      });
+      if (!connectionRequest) {
+        return res
+          .status(404)
+          .json({ message: "Connection Request not found or Invalid request" });
+      }
+
+      const fromUser = await User.findById(connectionRequest.fromUserId);
+
+      // only changing the "status" in DB if all the above checks are passed
+      connectionRequest.status = status;
+      const data = await connectionRequest.save();
+
+      res.json({
+        message:
+          loggedInUser.firstName +
+          " " +
+          loggedInUser.lastName +
+          " " +
+          status +
+          " the connection request from " +
+          fromUser.firstName +
+          " " +
+          fromUser.lastName,
+        data,
+      });
     } catch (err) {
       res.status(400).send("ERROR: " + err.message);
     }

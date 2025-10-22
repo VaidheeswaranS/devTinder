@@ -13,10 +13,9 @@
 
 ## connectionRequestRouter
 - POST /request/send/:status/:userId - (interested or ignored)
-- POST /request/review/accepted/:requestId
-- POST /request/review/rejected/:requestId
+- POST /request/review/:status/:requestId - (accepted or rejected)
 
 ## userRouter
-- GET /user/conenctions
+- GET /user/connections
 - GET /user/requests
 - GET /user/feed
