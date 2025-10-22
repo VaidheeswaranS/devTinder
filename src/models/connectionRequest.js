@@ -5,10 +5,12 @@ const connectionRequestSchema = new mongoose.Schema(
     fromUserId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
+      ref: "User", // this creates a relation or reference between "ConnectionRequest" Schema and "User" Schema (like join queries in SQL)
     },
     toUserId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
+      ref: "User", // this creates a relation or reference between "ConnectionRequest" Schema and "User" Schema (like join queries in SQL)
     },
     status: {
       type: String,

@@ -7,7 +7,7 @@ const validator = require("validator");
 
 const profileRouter = express.Router();
 
-// profile/view API - get user details from the DB
+// /profile/view API - get user details from the DB
 profileRouter.get("/profile/view", userAuth, async (req, res) => {
   try {
     const user = req.user;
@@ -17,7 +17,7 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
   }
 });
 
-// profile/edit API - to edit the details from the DB(only "photoUrl", "about" and "skills" can be edited)
+// /profile/edit API - to edit the details from the DB(only "photoUrl", "about" and "skills" can be edited)
 profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
   try {
     // check 1 - validation of data from request
@@ -41,7 +41,7 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
   }
 });
 
-// profile/changePassword API - to change the password if the user wants to change
+// /profile/changePassword API - to change the password if the user wants to change
 profileRouter.patch("/profile/changePassword", userAuth, async (req, res) => {
   try {
     const { emailId, password, newPassword } = req.body;
@@ -85,7 +85,7 @@ profileRouter.patch("/profile/changePassword", userAuth, async (req, res) => {
   }
 });
 
-// profile/forgotPassword - to change the password in case of User forgot the current password
+// /profile/forgotPassword - to change the password in case of User forgot the current password
 profileRouter.patch("/profile/forgotPassword", userAuth, async (req, res) => {
   try {
     const { emailId, newPassword } = req.body;

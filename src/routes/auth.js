@@ -6,7 +6,7 @@ const validator = require("validator");
 
 const authRouter = express.Router();
 
-// signup API - this is to register the User in the application
+// /signup API - this is to register the User in the application
 authRouter.post("/signup", async (req, res) => {
   try {
     const {
@@ -47,7 +47,7 @@ authRouter.post("/signup", async (req, res) => {
   }
 });
 
-// login API - this is to login the user into the application
+// /login API - this is to login the user into the application
 authRouter.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
@@ -83,7 +83,7 @@ authRouter.post("/login", async (req, res) => {
   }
 });
 
-// logout API - this is to logout the user from application
+// /logout API - this is to logout the user from application
 authRouter.post("/logout", (req, res) => {
   try {
     res.cookie("token", null, { expires: new Date(Date.now()) });

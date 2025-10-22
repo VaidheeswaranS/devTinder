@@ -5,7 +5,7 @@ const { User } = require("../models/user");
 
 const requestRouter = express.Router();
 
-// request/send/:status/:userId API - to send "interested" or "ignored" connection to request to others
+// /request/send/:status/:userId API - to send "interested" or "ignored" connection to request to others
 requestRouter.post(
   "/request/send/:status/:toUserId",
   userAuth,
@@ -99,7 +99,7 @@ requestRouter.post(
   }
 );
 
-// request/review/:status/:requestId API - this is to accept or reject the connection request
+// /request/review/:status/:requestId API - this is to accept or reject the connection request
 requestRouter.post(
   "/request/review/:status/:requestId",
   userAuth,
