@@ -1,8 +1,12 @@
 ﻿const express = require("express");
 const { connectDB } = require("./config/database");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 const app = express();
+
+// this is to handle the cors error when trying to access the API for different domain
+app.use(cors());
 
 // this is the middleware provided by Express which will read the request body and convert it into JS object
 app.use(express.json());
