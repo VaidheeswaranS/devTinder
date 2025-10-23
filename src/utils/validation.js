@@ -17,8 +17,17 @@ const validateSignUpData = (req) => {
 };
 
 const validateEditProfileData = (req) => {
-  const allowedEditFields = ["photoUrl", "about", "skills"];
-  const { photoUrl, about, skills } = req.body;
+  const allowedEditFields = [
+    "firstName",
+    "lastName",
+    "age",
+    "gender",
+    "photoUrl",
+    "about",
+    "skills",
+  ];
+  const { firstName, lastName, age, gender, photoUrl, about, skills } =
+    req.body;
 
   const isEditAllowed = Object.keys(req.body).every((field) =>
     allowedEditFields.includes(field)
@@ -31,6 +40,32 @@ const validateEditProfileData = (req) => {
   }
 
   // Only validate fields that are actually provided
+  if (
+    firstName !== undefined &&
+    !validator.isLength(firstName, { min: 2, max: 30 })
+  ) {
+    throw new Error(
+      "Enter a valid First Name. Should be between 2 to 30 characters"
+    );
+  }
+
+  if (
+    lastName !== undefined &&
+    !validator.isLength(lastName, { min: 2, max: 30 })
+  ) {
+    throw new Error(
+      "Enter a valid Last Name. Should be between 2 to 30 characters"
+    );
+  }
+
+  if (age !== undefined && !validator.isInt(age, { min: 18, max: 100 })) {
+    throw new Error("Age should be greater than 18");
+  }
+
+  if (gender !== undefined && (gender === "male" || "female")) {
+    throw new Error("Enter a valid gender");
+  }
+
   if (photoUrl !== undefined && !validator.isURL(photoUrl)) {
     throw new Error("Enter a valid photo URL");
   }
