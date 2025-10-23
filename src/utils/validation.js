@@ -58,11 +58,14 @@ const validateEditProfileData = (req) => {
     );
   }
 
-  if (age !== undefined && !validator.isInt(age, { min: 18, max: 100 })) {
-    throw new Error("Age should be greater than 18");
+  if (
+    age !== undefined &&
+    !validator.isInt(String(age), { min: 18, max: 100 })
+  ) {
+    throw new Error("Age should be between 18 and 100");
   }
 
-  if (gender !== undefined && (gender === "male" || "female")) {
+  if (gender !== undefined && !["male", "female", "others"].includes(gender)) {
     throw new Error("Enter a valid gender");
   }
 
