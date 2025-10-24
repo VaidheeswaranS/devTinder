@@ -51,7 +51,7 @@ const validateEditProfileData = (req) => {
 
   if (
     lastName !== undefined &&
-    !validator.isLength(lastName, { min: 2, max: 30 })
+    !validator.isLength(lastName, { min: 1, max: 30 })
   ) {
     throw new Error(
       "Enter a valid Last Name. Should be between 2 to 30 characters"
@@ -62,7 +62,7 @@ const validateEditProfileData = (req) => {
     age !== undefined &&
     !validator.isInt(String(age), { min: 18, max: 100 })
   ) {
-    throw new Error("Age should be between 18 and 100");
+    throw new Error("Minimum age should be 18");
   }
 
   if (gender !== undefined && !["male", "female", "others"].includes(gender)) {
