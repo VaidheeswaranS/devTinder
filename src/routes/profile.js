@@ -86,30 +86,36 @@ profileRouter.patch("/profile/changePassword", userAuth, async (req, res) => {
 });
 
 // /profile/forgotPassword - to change the password in case of User forgot the current password
-profileRouter.patch("/profile/forgotPassword", userAuth, async (req, res) => {
+profileRouter.patch("/profile/forgotPassword", async (req, res) => {
   try {
     const { emailId, newPassword } = req.body;
-    const loggedInUser = req.user;
 
     // check 1 - checking if emailId is valid
     if (!validator.isEmail(emailId)) {
       throw new Error("Not a valid Email ID");
     }
 
+    // check 2 - checking if the password is valid and meeting all requirements
+    if (!validator.isStrongPassword(newPassword)) {
+      throw new Error(
+        "Enter a strong password. Minimum 8 characters, One Uppercase, One Lowercase, one Special Character and One Number"
+      );
+    }
+
     // check 2 - getting the User info from DB with emailId as filter
     const user = await User.findOne({ emailId: emailId });
     if (!user) {
-      throw new Error("Invalid Credentials");
+      throw new Error("Email Id not found. Please enter a valid Email ID");
     }
 
     // only changing the password if above checks are passed
     const passwordHash = await bcrypt.hash(newPassword, 10);
-    loggedInUser.password = passwordHash;
-    await loggedInUser.save();
+    user.password = passwordHash;
+    await user.save();
     res.cookie("token", null, { expires: new Date(Date.now()) });
     res.send(
       `${
-        loggedInUser.firstName + " " + loggedInUser.lastName
+        user.firstName + " " + user.lastName
       } your password is updated successfully. Please Login again.`
     );
   } catch (err) {
