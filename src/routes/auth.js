@@ -40,8 +40,17 @@ authRouter.post("/signup", async (req, res) => {
       skills,
     });
 
-    await user.save();
-    res.send("User Added successfully");
+    const savedUser = await user.save();
+
+    // creating the JWT token once the user Register
+    const token = await savedUser.getJWT();
+
+    // add token to the cookie and send it back to user in response
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 10 * 3600000),
+    });
+
+    res.json({ message: "User Added successfully", data: savedUser });
   } catch (err) {
     res.status(500).send("ERROR: " + err.message);
   }

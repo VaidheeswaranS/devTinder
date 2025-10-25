@@ -1,18 +1,24 @@
 ﻿const validator = require("validator");
 
 const validateSignUpData = (req) => {
-  const { firstName, lastName, emailId, password, age, gender } = req.body;
+  const { firstName, lastName, emailId, password, age } = req.body;
 
-  if (!firstName || !lastName) {
-    throw new Error("Name is not provided. Please provide the name");
+  if (!firstName) {
+    throw new Error(
+      "First name is not provided. Please provide the valid first name"
+    );
+  } else if (!lastName) {
+    throw new Error(
+      "Last name is not provided. Please provide the valid last name"
+    );
   } else if (!validator.isEmail(emailId)) {
     throw new Error("Not a valid Email ID");
   } else if (!validator.isStrongPassword(password)) {
-    throw new Error("Enter a strong password");
+    throw new Error(
+      "Enter a strong password. Minimum 8 characters, One Uppercase, One Lowercase, one Special Character and One Number"
+    );
   } else if (age < 18) {
     throw new Error("Minimum age should be 18");
-  } else if (!["male", "female", "others"].includes(gender)) {
-    throw new Error("Please enter a valid gender");
   }
 };
 

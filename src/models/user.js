@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      minLength: 1,
+      minLength: 2,
       maxLength: 50,
     },
     lastName: {
@@ -37,19 +37,20 @@ const userSchema = new mongoose.Schema(
       trim: true,
       validate(value) {
         if (!validator.isStrongPassword(value)) {
-          throw new Error("Enter a strong password");
+          throw new Error(
+            "Enter a strong password. Minimum 8 characters, One Uppercase, One Lowercase, one Special Character and One Number"
+          );
         }
       },
     },
     age: {
       type: Number,
-      required: true,
       min: 18,
       default: 18,
     },
     gender: {
       type: String,
-      required: true,
+      default: "male",
       validate(value) {
         if (!["male", "female", "others"].includes(value)) {
           throw new Error("Gender is not valid");
