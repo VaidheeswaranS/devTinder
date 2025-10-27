@@ -24,6 +24,7 @@ const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
+require("dotenv").config();
 
 app.use("/", authRouter);
 app.use("/", profileRouter);
@@ -33,8 +34,8 @@ app.use("/", userRouter);
 connectDB()
   .then(() => {
     console.log("Database connected successfully");
-    app.listen(7777, () => {
-      console.log("Server is listening on port 7777");
+    app.listen(process.env.PORT, () => {
+      console.log(`Server is listening on port ${process.env.PORT}`);
     });
   })
   .catch((err) => {
