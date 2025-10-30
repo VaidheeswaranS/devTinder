@@ -29,6 +29,28 @@ const initializeSocket = (server) => {
       "sendMessage",
       async ({ firstName, lastName, userId, targetUserId, text }) => {
         try {
+          // check 1 - checking if the two participants (userId and targetUserId) is already a connection
+          const isConnection = await ConnectionRequest.findOne({
+            $or: [
+              {
+                fromUserId: userId,
+                toUserId: targetUserId,
+                status: "accepted",
+              },
+              {
+                fromUserId: targetUserId,
+                toUserId: userId,
+                status: "accepted",
+              },
+            ],
+          });
+
+          if (!isConnection) {
+            throw new Error(
+              "You cannot send chat to people who are not in your connections"
+            );
+          }
+
           // creating a unique room ID where the userId and targetUserId both will be connected to chat and send the message to the roomId
           const roomId = getHashedRoomId(userId, targetUserId);
           console.log(firstName + " " + text);
